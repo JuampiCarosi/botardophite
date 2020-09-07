@@ -1,0 +1,26 @@
+{
+  "name": "botardophait",
+  "version": "1.0.0",
+  "description": "Botardovich para los pibardos carita fachera",
+  "main": "index.js",
+  "scripts": {
+    "test": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/juampapo546/botardophait.git"
+  },
+  "keywords": [
+    "discord"
+  ],
+  "author": "Juampapo546 & LucasAlda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juampapo546/botardophait/issues"
+  },
+  "homepage": "https://github.com/juampapo546/botardophait",
+  "dependencies": {
+    "discord.js": "^12.3.1",
+    "opusscript": "0.0.7"
+  }
+}
