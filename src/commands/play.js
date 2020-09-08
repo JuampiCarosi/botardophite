@@ -1,16 +1,17 @@
+const Youtube = require("simple-youtube-api");
+const youtube = new Youtube("AIzaSyAZu0Qhlz_kVx9W1E2EVeGVTTZxym5WtxI");
+
 module.exports = {
   name: "play",
-  description: "play music",
-  execute(msg, cutMsg, yt, connection) {
-    console.log(connection);
+  description: "searches & plays youtube videos",
+  execute(msg, args, yt, connection) {
+    youtube
+      .searchVideos(args, 4)
+      .then((results) => {
+        msg.channel.send(`Playing ${results[0].title} `);
+        connection.play(yt(results[0].url));
+      })
 
-    connection.play(
-      yt(
-        "https://music.youtube.com/playlist?list=PLJwsO4Rx5k_S2VDcQ-zgWmH6vMwhyGuBZ",
-        {
-          volume: 0.5,
-        }
-      )
-    );
+      .catch(console.log);
   },
 };
