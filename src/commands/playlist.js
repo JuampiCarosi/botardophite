@@ -13,6 +13,7 @@ module.exports = {
         .getVideos()
 
         .then((videos) => {
+          console.log(playlist.videos[0].url);
           msg.channel.send(
             `This playlist has ${
               videos.length === 50 ? "50+" : videos.length
