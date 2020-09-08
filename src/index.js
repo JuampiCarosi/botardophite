@@ -2,7 +2,8 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const yt = require("ytdl-core");
 const HOT_KEY = "/";
-var queue = [];
+let queue = [];
+let nowPlaying = false;
 
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
@@ -30,9 +31,6 @@ client.on("ready", () => {
 /* ------- Chat------ */
 
 client.on("message", async (msg) => {
-  if (!msg.content.startsWith == HOT_KEY || !msg.guild || msg.author.bot)
-    return;
-
   const args = msg.content.slice(HOT_KEY.length).split(/ +/);
   const command = args.shift().toLowerCase();
 
@@ -40,9 +38,9 @@ client.on("message", async (msg) => {
     client.commands.get("gay").execute(msg, args);
   } else if (msg.content === "no u gay") {
     client.commands.get("nougay").execute(msg, args);
-  } else if (command === "skip") {
-    queue.shift();
   }
+  if (msg.content.split("")[0] !== HOT_KEY || !msg.guild || msg.author.bot)
+    return;
 
   /* ------- Voice & Music------ */
 
@@ -59,20 +57,43 @@ async function asyncCommands(msg, args, yt, command) {
     } else {
       msg.reply("Unite a un canal primero bro");
     }
-  } else if (command === "queue") {
+  } else if (command === "play") {
     if (msg.member.voice.channel) {
       const connection = await msg.member.voice.channel.join();
-      client.commands.get("queue").execute(msg, args, yt, connection, queue);
+      const song = await client.commands.get("puppeteer").getLink(args);
+      queue.push(song);
+      // await client.commands
+      //   .get("queue")
+      //   .execute(msg, args, yt, connection, queue);
+      if (!nowPlaying) {
+        await connection.play(yt(queue[0].link, { type: "audioonly" }));
+        queue.shift();
+        nowPlaying = true;
+        await msg.channel.send(`Playing ${song.title}`);
+      } else {
+        await msg.channel.send(`Added ${song.title} to queue`);
+      }
     }
   } else if (command === "leave" || command === "stop") {
     const connectionExit = await msg.member.voice.channel.leave();
-  } else if (command === "play") {
-    const connection = await msg.member.voice.channel.join();
-    connection.play(yt(queue[0]));
+    nowPlaying = false;
   } else if (command === "skip") {
-    queue.shift();
     const connection = await msg.member.voice.channel.join();
-    console.log(queue[0]);
-    connection.play(yt(queue[0]));
+    await connection.play(yt(queue[0].link, { type: "audioonly" }));
+    await msg.channel.send(`Playing ${queue[0].title}`);
+    queue.shift();
+  } else if (command === "list") {
+    let message = "";
+    queue.forEach((song, i) => {
+      message += `${i + 1}) ${song.title} `;
+    });
+    await msg.channel.send(message);
+
+    queue.shift();
+  } else if (command === "clear") {
+    queue = [];
+    await msg.channel.send("Queue emptied");
   }
+
+  console.log(queue);
 }
