@@ -30,7 +30,6 @@ module.exports = {
         });
 
         resolve(song);
-        //  await browser.close();
       } catch (error) {
         reject(error);
       }

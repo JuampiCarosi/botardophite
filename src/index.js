@@ -11,6 +11,7 @@ let songPlaying;
 const fs = require("fs");
 const { resolve } = require("path");
 const { connect } = require("http2");
+const { search } = require("ffmpeg-static");
 client.commands = new Discord.Collection();
 const commandFiles = fs
   .readdirSync("./src/commands/")
@@ -27,8 +28,6 @@ client.login("NzUyMzczMTE1MTkxMDMzODY3.X1WsEQ.6dil_34zfxzxoacO-yuDkMHGtoA");
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
-
-/* ------- ADMINISTRADOR DE COMANDOS ------ */
 
 /* ------- Chat------ */
 
@@ -69,9 +68,13 @@ async function asyncCommands(msg, args, yt, command) {
     if (msg.member.voice.channel) {
       if (args.length > 1) {
         const song = await client.commands
-          .get("puppeteer")
-          .getLink(args, args.includes("http") ? "link" : "name");
+          .get("search")
+          .getLink(queue, args, args.includes("http") ? "link" : "name");
+        min2sec(song);
         queue.push(song);
+
+        console.log(queue[0].duration);
+
         if (nowPlaying) msg.channel.send(`Nuevo temita ura ${song.title}`);
       }
       if (!nowPlaying) {
@@ -161,4 +164,12 @@ function shuffle(array) {
   }
 
   return array;
+}
+
+function min2sec(song) {
+  console.log(song);
+  const a = song.duration.split(":");
+  const minFinal = a[0] * 60;
+  const sec = a[1];
+  song.duration = parseInt(minFinal) + parseInt(sec);
 }
