@@ -3,6 +3,7 @@ const client = new Discord.Client();
 const yt = require("ytdl-core");
 const HOT_KEY = "/";
 let queue = [];
+let autoPlay = 0;
 let nowPlaying = false;
 let changeSong;
 let songPlaying;
@@ -53,6 +54,14 @@ client.on("message", async (msg) => {
     msg.channel.send(
       "Quedo mas revuelto que estomago despues de un buen Torito"
     );
+  } else if (command === "autoplay") {
+    if (args) {
+      autoPlay = 1;
+      console.log(autoPlay);
+    } else if (!args) {
+      autoPlay = 0;
+      console.log(autoPlay);
+    }
   }
 
   /* ------- Voice & Music------ */
@@ -169,7 +178,7 @@ function shuffle(array) {
 function min2sec(song) {
   console.log(song);
   const a = song.duration.split(":");
-  const minFinal = a[0] * 60;
+  const min = a[0] * 60;
   const sec = a[1];
-  song.duration = parseInt(minFinal) + parseInt(sec);
+  song.duration = parseInt(min) + parseInt(sec);
 }
