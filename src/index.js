@@ -4,17 +4,16 @@ const client = new Discord.Client();
 const yt = require("ytdl-core");
 const HOT_KEY = "/";
 let queue = [];
-let autoPlay = 1;
-let autoStatus = "ON";
+let autoPlay = "on";
 let nowPlaying = false;
 let changeSong;
 let songPlaying;
+let firstMessage = true;
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
 const { resolve } = require("path");
 const { connect } = require("http2");
 const { search } = require("ffmpeg-static");
-const autoplay = require("./commands/autoplay");
 client.commands = new Discord.Collection();
 const commandFiles = fs
   .readdirSync("./src/commands/")
@@ -27,7 +26,7 @@ for (const file of commandFiles) {
 
 /* ------- Comienzo del bot ------ */
 
-console.log(KEYS.discord);
+client.login(KEYS.discord);
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -58,13 +57,10 @@ client.on("message", async (msg) => {
     );
   } else if (command === "autoplay") {
     if (args.trimEnd().trimStart() === "on") {
-      autoPlay = 1;
-
-      autoStatus = "ON";
+      autoPlay = "on";
       msg.channel.send("Autoplay set to on");
     } else if (args.trimEnd().trimStart() === "off") {
-      autoPlay = 0;
-      autoStatus = "OFF";
+      autoPlay = "off";
       msg.channel.send("Autoplay set to off");
     }
   }
@@ -79,7 +75,10 @@ async function asyncCommands(msg, args, yt, command) {
   const connection = await msg.member.voice.channel.join();
 
   if (command === "play") {
-    msg.channel.send(`Autoplay is ${autoStatus} `);
+    if (firstMessage) {
+      firstMessage = false;
+      msg.channel.send(`Autoplay is ${autoPlay}`);
+    }
     play(args, msg, connection);
   } else if (command === "skip") {
     clearTimeout(changeSong);
@@ -137,7 +136,7 @@ async function reproduce({ connection, msg }) {
     nowPlaying = true;
   }
 
-  if (nowPlaying && autoPlay) {
+  if (nowPlaying && autoPlay === "on") {
     const nextAutoUrl = await client.commands
       .get("autoplay")
       .searchAutoPlay(queue);
