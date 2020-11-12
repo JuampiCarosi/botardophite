@@ -22,10 +22,10 @@
   "dependencies": {
     "discord.js": "^12.4.1",
     "ffmpeg-static": "^4.2.7",
-    "heroku": "^0.2.0",
+    "heroku": "^7.47.2",
     "node-forge": "^0.10.0",
     "opusscript": "0.0.7",
-    "puppeteer": "^5.4.0",
+    "puppeteer": "^5.4.1",
     "simple-youtube-api": "^5.2.1",
     "ytdl-core": "^3.4.2",
     "ytsr": "github:TimeForANinja/node-ytsr#wip-api-adjustments"
