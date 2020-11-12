@@ -1,15 +1,14 @@
 const Youtube = require("simple-youtube-api");
-// api 1
-//const youtube = new Youtube("AIzaSyAMPHm6VCHUa6el51sKU05OpLkL1Ge315w");
-// api 2
-const youtube = new Youtube("AIzaSyAMPHm6VCHUa6el51sKU05OpLkL1Ge315w");
+
 const yt = require("ytdl-core");
+const { youtube1 } = require("../keys");
 
 const list = [];
 module.exports = {
   name: "playlist",
   description: "queue youtube playlists",
-  execute(args, msg) {
+  execute(args, msg, KEYS) {
+    const youtube = new Youtube(KEYS.youtube1);
     return new Promise((resolve, reject) => {
       try {
         youtube.getPlaylist(String(args)).then((playlist) => {

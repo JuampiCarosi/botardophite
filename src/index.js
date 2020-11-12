@@ -1,3 +1,4 @@
+const KEYS = require("./keys.js");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const yt = require("ytdl-core");
@@ -26,7 +27,7 @@ for (const file of commandFiles) {
 
 /* ------- Comienzo del bot ------ */
 
-client.login("NzUyMzczMTE1MTkxMDMzODY3.X1WsEQ.6dil_34zfxzxoacO-yuDkMHGtoA");
+console.log(KEYS.discord);
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -87,7 +88,7 @@ async function asyncCommands(msg, args, yt, command) {
     if (msg.member.voice.channel) {
       const list = await client.commands.get("playlist").execute(args, msg);
       queue.push(...list);
-      reproduce({ connection, msg });
+      reproduce({ connection, msg, KEYS });
     } else {
       msg.reply("Unite a un canal primero bro");
     }
