@@ -1,14 +1,11 @@
 const puppeteer = require("puppeteer");
 module.exports = {
   name: "puppeteer",
-  getLink(args, type = "name") {
+  getLink(queue, args, type = "name") {
     return new Promise(async (resolve, reject) => {
       try {
         const browser = await puppeteer.launch({
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-          ],
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = await browser.newPage();
         await page.goto(

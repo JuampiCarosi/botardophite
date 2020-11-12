@@ -3,16 +3,17 @@ const client = new Discord.Client();
 const yt = require("ytdl-core");
 const HOT_KEY = "/";
 let queue = [];
-let autoPlay = 0;
+let autoPlay = 1;
+let autoStatus = "ON";
 let nowPlaying = false;
 let changeSong;
 let songPlaying;
-
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
 const { resolve } = require("path");
 const { connect } = require("http2");
 const { search } = require("ffmpeg-static");
+const autoplay = require("./commands/autoplay");
 client.commands = new Discord.Collection();
 const commandFiles = fs
   .readdirSync("./src/commands/")
@@ -55,12 +56,15 @@ client.on("message", async (msg) => {
       "Quedo mas revuelto que estomago despues de un buen Torito"
     );
   } else if (command === "autoplay") {
-    if (args) {
+    if (args.trimEnd().trimStart() === "on") {
       autoPlay = 1;
-      console.log(autoPlay);
-    } else if (!args) {
+
+      autoStatus = "ON";
+      msg.channel.send("Autoplay set to on");
+    } else if (args.trimEnd().trimStart() === "off") {
       autoPlay = 0;
-      console.log(autoPlay);
+      autoStatus = "OFF";
+      msg.channel.send("Autoplay set to off");
     }
   }
 
@@ -74,22 +78,8 @@ async function asyncCommands(msg, args, yt, command) {
   const connection = await msg.member.voice.channel.join();
 
   if (command === "play") {
-    if (msg.member.voice.channel) {
-      if (args.length > 1) {
-        const song = await client.commands
-          .get("search")
-          .getLink(queue, args, args.includes("http") ? "link" : "name");
-        min2sec(song);
-        queue.push(song);
-
-        console.log(queue[0].duration);
-
-        if (nowPlaying) msg.channel.send(`Nuevo temita ura ${song.title}`);
-      }
-      if (!nowPlaying) {
-        reproduce({ connection, msg });
-      }
-    }
+    msg.channel.send(`Autoplay is ${autoStatus} `);
+    play(args, msg, connection);
   } else if (command === "skip") {
     clearTimeout(changeSong);
     reproduce({ connection, msg });
@@ -133,26 +123,60 @@ async function asyncCommands(msg, args, yt, command) {
 }
 
 async function reproduce({ connection, msg }) {
-  nowPlaying = true;
   if (queue.length === 0) {
     msg.channel.send("Tirame un temita padreee");
     return;
   }
 
   songPlaying = yt(queue[0].link, { type: "audioonly" });
-  if (msg.content === "/pause") {
-    songPlaying.pause();
+
+  if (!nowPlaying) {
+    await connection.play(songPlaying);
+    await msg.channel.send(`Escucha perri ${queue[0].title}`);
+    nowPlaying = true;
   }
 
-  await connection.play(songPlaying);
-  await msg.channel.send(`Escucha perri ${queue[0].title}`);
+  if (nowPlaying && autoPlay) {
+    const nextAutoUrl = await client.commands
+      .get("autoplay")
+      .searchAutoPlay(queue);
+
+    const autoPlayHold = (queue[0].duration * 1000) / 3;
+    // const oldSongUrl = queue[0].link; TODO
+
+    setTimeout(() => {
+      if (queue.length === 0) {
+        // if (oldSongUrl == nextAutoUrl) TODO
+        play(nextAutoUrl, msg, connection);
+        msg.channel.send("Queuing song from auto play");
+      }
+    }, autoPlayHold);
+  }
 
   changeSong = setTimeout(async () => {
-    reproduce({ connection, msg });
     nowPlaying = false;
+    reproduce({ connection, msg });
   }, parseInt(queue[0].duration * 1000));
 
   queue.shift();
+}
+
+async function play(args, msg, connection) {
+  if (msg.member.voice.channel) {
+    if (args.length > 1) {
+      const song = await client.commands
+        .get("puppeteer")
+        .getLink(queue, args, args.includes("http") ? "link" : "name");
+      //   min2sec(song);
+      queue.push(song);
+
+      if (nowPlaying) msg.channel.send(`Nuevo temita ura ${song.title}`);
+    }
+    if (!nowPlaying) {
+      reproduce({ connection, msg });
+    }
+  }
+  console.log(queue[0]);
 }
 
 function shuffle(array) {
@@ -176,7 +200,6 @@ function shuffle(array) {
 }
 
 function min2sec(song) {
-  console.log(song);
   const a = song.duration.split(":");
   const min = a[0] * 60;
   const sec = a[1];
