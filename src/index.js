@@ -72,93 +72,103 @@ client.on("message", async (msg) => {
 
 /* ------- Funciones para el voice channel -------- */
 async function asyncCommands(msg, args, yt, command) {
-  const connection = await msg.member.voice.channel.join();
+  try {
+    const connection = await msg.member.voice.channel.join();
 
-  if (command === "play") {
-    if (firstMessage) {
-      firstMessage = false;
-      msg.channel.send(`Autoplay is ${autoPlay}`);
-    }
-    play(args, msg, connection);
-  } else if (command === "skip") {
-    clearTimeout(changeSong);
-    reproduce({ connection, msg });
-  } else if (command === "playlist") {
-    if (msg.member.voice.channel) {
-      const list = await client.commands.get("playlist").execute(args, msg);
-      queue.push(...list);
-      reproduce({ connection, msg, KEYS });
-    } else {
-      msg.reply("Unite a un canal primero bro");
-    }
-  } else if (command === "leave" || command === "stop") {
-    await msg.member.voice.channel.leave();
-    nowPlaying = false;
-  } else if (command === "list") {
-    try {
-      let message = "Lista: \n";
-      if (queue.length > 20) {
-        [...queue].splice(0, 20).forEach((song, i) => {
-          message += `${i + 1}) ${song.title} (${
-            song.duration || "Stil fetching..."
-          }s) \n`;
-        });
-        message += `${queue.length - 20} canciones mas`;
-      } else {
-        queue.forEach((song, i) => {
-          message += `${i + 1}) ${song.title} (${
-            song.duration || "Stil fetching..."
-          }s) \n`;
-        });
+    if (command === "play") {
+      if (firstMessage) {
+        firstMessage = false;
+        msg.channel.send(`Autoplay is ${autoPlay}`);
       }
-      await msg.channel.send(message);
-    } catch (error) {
-      msg.channel.send(error);
+      play(args, msg, connection);
+    } else if (command === "skip") {
+      clearTimeout(changeSong);
+      nowPlaying = false;
+      reproduce({ connection, msg });
+    } else if (command === "playlist") {
+      if (msg.member.voice.channel) {
+        const list = await client.commands.get("playlist").execute(args, msg);
+        queue.push(...list);
+        reproduce({ connection, msg, KEYS });
+      } else {
+        msg.reply("Unite a un canal primero bro");
+      }
+    } else if (command === "leave" || command === "stop") {
+      await msg.member.voice.channel.leave();
+      nowPlaying = false;
+    } else if (command === "list") {
+      try {
+        let message = "Lista: \n";
+        if (queue.length > 20) {
+          [...queue].splice(0, 20).forEach((song, i) => {
+            message += `${i + 1}) ${song.title} (${
+              song.duration || "Stil fetching..."
+            }s) \n`;
+          });
+          message += `${queue.length - 20} canciones mas`;
+        } else {
+          queue.forEach((song, i) => {
+            message += `${i + 1}) ${song.title} (${
+              song.duration || "Stil fetching..."
+            }s) \n`;
+          });
+        }
+        await msg.channel.send(message);
+      } catch (error) {
+        msg.channel.send(error);
+      }
+    } else if (command === "clear") {
+      queue = [];
+      await msg.channel.send("Mande todo a la mierda de uña");
+    } else if (command === "pause") {
     }
-  } else if (command === "clear") {
-    queue = [];
-    await msg.channel.send("Mande todo a la mierda de uña");
-  } else if (command === "pause") {
+  } catch {
+    msg.channel.send("Unite a un canal");
   }
 }
 
 async function reproduce({ connection, msg }) {
-  if (queue.length === 0) {
-    msg.channel.send("Tirame un temita padreee");
+  try {
+    if (queue.length === 0) {
+      msg.channel.send("Tirame un temita padreee");
+      return;
+    }
+
+    songPlaying = yt(queue[0].link, { type: "audioonly" });
+
+    if (!nowPlaying) {
+      await connection.play(songPlaying);
+      await msg.channel.send(`Escucha perri ${queue[0].title}`);
+      nowPlaying = true;
+    }
+
+    if (nowPlaying && autoPlay === "on") {
+      const nextAutoUrl = await client.commands
+        .get("autoplay")
+        .searchAutoPlay(queue);
+
+      const autoPlayHold = (queue[0].duration * 1000) / 3;
+      // const oldSongUrl = queue[0].link; TODO
+
+      setTimeout(() => {
+        if (queue.length === 0) {
+          // if (oldSongUrl == nextAutoUrl) TODO
+          play(nextAutoUrl, msg, connection);
+          msg.channel.send("Queuing song from auto play");
+        }
+      }, autoPlayHold);
+    }
+
+    changeSong = setTimeout(async () => {
+      nowPlaying = false;
+      reproduce({ connection, msg });
+    }, parseInt(queue[0].duration * 1000));
+
+    queue.shift();
+  } catch {
+    await msg.channel.send("Tirame uno pa");
     return;
   }
-
-  songPlaying = yt(queue[0].link, { type: "audioonly" });
-
-  if (!nowPlaying) {
-    await connection.play(songPlaying);
-    await msg.channel.send(`Escucha perri ${queue[0].title}`);
-    nowPlaying = true;
-  }
-
-  if (nowPlaying && autoPlay === "on") {
-    const nextAutoUrl = await client.commands
-      .get("autoplay")
-      .searchAutoPlay(queue);
-
-    const autoPlayHold = (queue[0].duration * 1000) / 3;
-    // const oldSongUrl = queue[0].link; TODO
-
-    setTimeout(() => {
-      if (queue.length === 0) {
-        // if (oldSongUrl == nextAutoUrl) TODO
-        play(nextAutoUrl, msg, connection);
-        msg.channel.send("Queuing song from auto play");
-      }
-    }, autoPlayHold);
-  }
-
-  changeSong = setTimeout(async () => {
-    nowPlaying = false;
-    reproduce({ connection, msg });
-  }, parseInt(queue[0].duration * 1000));
-
-  queue.shift();
 }
 
 async function play(args, msg, connection) {
@@ -176,7 +186,6 @@ async function play(args, msg, connection) {
       reproduce({ connection, msg });
     }
   }
-  console.log(queue[0]);
 }
 
 function shuffle(array) {

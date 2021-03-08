@@ -7,16 +7,19 @@ module.exports = {
       try {
         const browser = await puppeteer.launch({
           args: ["--no-sandbox", "--disable-setuid-sandbox"],
-          headless: true,
         });
         const page = await browser.newPage();
         await page.goto(link);
 
-        page.click(".ytp-next-button");
-        setTimeout(async () => {
-          autoPlaySong = page.url();
-          resolve(autoPlaySong);
+        setTimeout(() => {
+          page.keyboard.down("Shift");
+          page.keyboard.press("N");
+          page.keyboard.up("Shift");
         }, 1500);
+        setTimeout(async () => {
+          const autoPlaySong = page.url();
+          resolve(autoPlaySong);
+        }, 2500);
       } catch (error) {
         console.log("no ok");
       }
