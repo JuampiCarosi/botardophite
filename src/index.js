@@ -18,6 +18,14 @@ if (process.env.Discord) {
   KEYS = require("./keys.js");
 }
 
+/* ------- Heroku ------ */
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT} ...... `);
+});
+
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
 const { resolve } = require("path");
