@@ -1,4 +1,3 @@
-const KEYS = require("./keys.js");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const yt = require("ytdl-core");
@@ -10,6 +9,15 @@ let changeSong;
 let songPlaying;
 let firstMessage = true;
 const playedSongs = [];
+let KEYS = {};
+
+if (process.env.Discord) {
+  KEYS = {};
+  KEYS.discord = process.env.Discord;
+} else {
+  KEYS = require("./keys.js");
+}
+
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
 const { resolve } = require("path");

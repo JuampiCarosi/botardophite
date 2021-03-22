@@ -1,7 +1,6 @@
 const Youtube = require("simple-youtube-api");
 
 const yt = require("ytdl-core");
-const { youtube1 } = require("../keys");
 
 const list = [];
 module.exports = {
