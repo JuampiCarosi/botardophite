@@ -24,10 +24,8 @@ module.exports = {
         setTimeout(async () => {
           const autoPlaySong = page.url();
           if (playedSongs.includes(autoPlaySong)) {
-            console.log("shit 1");
             skipSong(page, browser);
           } else {
-            console.log("shit 2");
             browser.close();
             resolve(autoPlaySong);
           }

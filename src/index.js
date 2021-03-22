@@ -149,11 +149,9 @@ async function reproduce({ connection, msg }) {
         .searchAutoPlay(queue, playedSongs);
 
       const autoPlayHold = (queue[0].duration * 1000) / 3;
-      // const oldSongUrl = queue[0].link; TODO
 
       setTimeout(() => {
         if (queue.length === 0) {
-          // if (oldSongUrl == nextAutoUrl) TODO
           play(nextAutoUrl, msg, connection);
           msg.channel.send("Queuing song from auto play");
         }
