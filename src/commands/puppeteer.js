@@ -26,7 +26,7 @@ module.exports = {
 
           return song;
         });
-
+        browser.close();
         resolve(song);
       } catch (error) {
         reject(error);

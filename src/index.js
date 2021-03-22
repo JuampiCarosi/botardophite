@@ -9,6 +9,7 @@ let nowPlaying = false;
 let changeSong;
 let songPlaying;
 let firstMessage = true;
+const playedSongs = [];
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
 const { resolve } = require("path");
@@ -145,7 +146,7 @@ async function reproduce({ connection, msg }) {
     if (nowPlaying && autoPlay === "on") {
       const nextAutoUrl = await client.commands
         .get("autoplay")
-        .searchAutoPlay(queue);
+        .searchAutoPlay(queue, playedSongs);
 
       const autoPlayHold = (queue[0].duration * 1000) / 3;
       // const oldSongUrl = queue[0].link; TODO
@@ -179,7 +180,7 @@ async function play(args, msg, connection) {
         .getLink(queue, args, args.includes("http") ? "link" : "name");
       //   min2sec(song);
       queue.push(song);
-
+      playedSongs.push(song.link);
       if (nowPlaying) msg.channel.send(`Nuevo temita ura ${song.title}`);
     }
     if (!nowPlaying) {

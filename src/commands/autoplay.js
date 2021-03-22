@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 module.exports = {
   name: "autoplay",
-  searchAutoPlay(queue) {
+  searchAutoPlay(queue, playedSongs) {
     link = queue[0].link;
     return new Promise(async (resolve, reject) => {
       try {
@@ -11,6 +11,11 @@ module.exports = {
         const page = await browser.newPage();
         await page.goto(link);
 
+        skipSong(page, browser);
+      } catch (error) {
+        console.log("no ok");
+      }
+      function skipSong(page, browser) {
         setTimeout(() => {
           page.keyboard.down("Shift");
           page.keyboard.press("N");
@@ -18,10 +23,15 @@ module.exports = {
         }, 1500);
         setTimeout(async () => {
           const autoPlaySong = page.url();
-          resolve(autoPlaySong);
+          if (playedSongs.includes(autoPlaySong)) {
+            console.log("shit 1");
+            skipSong(page, browser);
+          } else {
+            console.log("shit 2");
+            browser.close();
+            resolve(autoPlaySong);
+          }
         }, 2500);
-      } catch (error) {
-        console.log("no ok");
       }
     });
   },
