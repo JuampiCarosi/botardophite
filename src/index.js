@@ -19,12 +19,12 @@ if (process.env.Discord) {
 }
 
 /* ------- Heroku ------ */
-const express = require("express");
-const app = express();
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT} ...... `);
-});
+// const express = require("express");
+// const app = express();
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`listening on port ${PORT} ...... `);
+// });
 
 /* ------- Conexion con carpeta de comandos ------ */
 const fs = require("fs");
@@ -139,7 +139,8 @@ async function asyncCommands(msg, args, yt, command) {
       await msg.channel.send("Mande todo a la mierda de uña");
     } else if (command === "pause") {
     }
-  } catch {
+  } catch (error) {
+    console.log(error);
     msg.channel.send("Unite a un canal");
   }
 }
@@ -180,7 +181,8 @@ async function reproduce({ connection, msg }) {
     }, parseInt(queue[0].duration * 1000));
 
     queue.shift();
-  } catch {
+  } catch (error) {
+    console.log(error);
     await msg.channel.send("Tirame uno pa");
     return;
   }
