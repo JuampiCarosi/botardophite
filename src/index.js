@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const yt = require("ytdl-core");
-const HOT_KEY = "/";
+const HOT_KEY = ".";
 let queue = [];
 let autoPlay = "on";
 let nowPlaying = false;
@@ -91,7 +91,6 @@ client.on("message", async (msg) => {
 async function asyncCommands(msg, args, yt, command) {
   try {
     const connection = await msg.member.voice.channel.join();
-
     if (command === "play") {
       if (firstMessage) {
         firstMessage = false;
@@ -104,7 +103,9 @@ async function asyncCommands(msg, args, yt, command) {
       reproduce({ connection, msg });
     } else if (command === "playlist") {
       if (msg.member.voice.channel) {
-        const list = await client.commands.get("playlist").execute(args, msg);
+        const list = await client.commands
+          .get("playlist")
+          .execute(args, msg, KEYS);
         queue.push(...list);
         reproduce({ connection, msg, KEYS });
       } else {
@@ -119,15 +120,15 @@ async function asyncCommands(msg, args, yt, command) {
         if (queue.length > 20) {
           [...queue].splice(0, 20).forEach((song, i) => {
             message += `${i + 1}) ${song.title} (${
-              song.duration || "Stil fetching..."
-            }s) \n`;
+              sec2min(song.duration) || "Stil fetching..."
+            }) \n`;
           });
           message += `${queue.length - 20} canciones mas`;
         } else {
           queue.forEach((song, i) => {
             message += `${i + 1}) ${song.title} (${
-              song.duration || "Stil fetching..."
-            }s) \n`;
+              sec2min(song.duration) || "Stil fetching..."
+            }) \n`;
           });
         }
         await msg.channel.send(message);
@@ -224,10 +225,22 @@ function shuffle(array) {
 
   return array;
 }
-
 function min2sec(song) {
-  const a = song.duration.split(":");
-  const min = a[0] * 60;
-  const sec = a[1];
+  const timeArr = song.duration.split(":");
+  const min = timeArr[0] * 60;
+  const sec = timeArr[1];
   song.duration = parseInt(min) + parseInt(sec);
+}
+
+function sec2min(time) {
+  const min = Math.floor(time / 60);
+  let sec = Math.floor(time - min * 60);
+  console.log(sec.toString().length);
+  let naturalDisplay;
+  if (sec.toString().length === 1) {
+    sec = `0${sec}`;
+  }
+  console.log();
+  sec ? (naturalDisplay = `${min}:${sec}`) : (naturalDisplay = `${min}m`);
+  return naturalDisplay;
 }
