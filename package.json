@@ -1,0 +1,33 @@
+{
+  "name": "botardophitev2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/juampapo546/botardophite.git"
+  },
+  "author": "juampapo546",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juampapo546/botardophite/issues"
+  },
+  "homepage": "https://github.com/juampapo546/botardophite#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/opus": "^0.5.3",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.6.0",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.1.0",
+    "ffmpeg-static": "^4.4.0",
+    "libsodium-wrappers": "^0.7.9",
+    "opusscript": "^0.0.8",
+    "puppeteer": "^10.4.0",
+    "tweetnacl": "^1.0.3",
+    "ytdl": "^1.4.1"
+  }
+}
