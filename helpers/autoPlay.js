@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 module.exports = {
   name: "autoplay",
   searchAutoPlay({ queue, playedSongs }) {
-    link = queue[0].url;
+    const link = queue[0].url;
     return new Promise(async (resolve, reject) => {
       try {
         const browser = await puppeteer.launch({
@@ -23,7 +23,9 @@ module.exports = {
         }, 1500);
         setTimeout(async () => {
           const autoPlaySong = page.url();
-          if (playedSongs.includes(autoPlaySong)) {
+
+          if (hasBeenPlayed(autoPlaySong)) {
+            console.log("cancion repetida, pasando a la siguiente...");
             skipSong(page, browser);
           } else {
             browser.close();
@@ -32,5 +34,10 @@ module.exports = {
         }, 2500);
       }
     });
+    function hasBeenPlayed(newSong) {
+      for (iteratedSong of playedSongs) {
+        return iteratedSong.url === newSong;
+      }
+    }
   },
 };

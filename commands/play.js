@@ -54,7 +54,6 @@ module.exports = {
             });
             queue.push(await searchSong.execute(autoUrl));
             playedSongs.push(queue[queue.length - 1]);
-            console.log(queue);
           }
         }, autoPlayHold);
       } catch (e) {
@@ -119,7 +118,6 @@ module.exports = {
       console.log(`player is :${playerStatus}`);
 
       if (playerStatus === "idle") {
-        console.log("shifted");
         queue.shift();
         if (queue.length != 0) reproduce(queue[0], "idle event");
       }
